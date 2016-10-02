@@ -27,16 +27,16 @@ class KeyPadViewController: UIViewController, UITextFieldDelegate {
     var entireHeightConstraint: NSLayoutConstraint? = nil
     
     
-    var defaults = NSUserDefaults.standardUserDefaults()
+    var defaults = UserDefaults.standard
     //var expensesArray : [(price: Double, description: String)] = NSUserDefaults.standardUserDefaults().objectForKey("expensesArray") as? [(price: Double, description: String)] ?? []
-    var descriptionArray : [String] = NSUserDefaults.standardUserDefaults().objectForKey("descriptionArray") as? [String] ?? []
-    var expensesArray : [Double] = NSUserDefaults.standardUserDefaults().objectForKey("expensesArray") as? [Double] ?? []
+    var descriptionArray : [String] = UserDefaults.standard.object(forKey: "descriptionArray") as? [String] ?? []
+    var expensesArray : [Double] = UserDefaults.standard.object(forKey: "expensesArray") as? [Double] ?? []
 
     
     var x : Double = 0
     
     var runningTotal : Double {
-        return expensesArray.reduce(0, combine: +)
+        return expensesArray.reduce(0, +)
     }
     
     func updateUI() {
@@ -44,8 +44,8 @@ class KeyPadViewController: UIViewController, UITextFieldDelegate {
         canBackspace = false        
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let destViewController : HistoryViewController = segue.destinationViewController as! HistoryViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let destViewController : HistoryViewController = segue.destination as! HistoryViewController
         destViewController.expensesHistory = expensesArray
         destViewController.descriptionHistory = descriptionArray
     }
@@ -53,12 +53,12 @@ class KeyPadViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         updateUI()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillShow:", name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(KeyPadViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(KeyPadViewController.keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         self.descriptionTextField.delegate = self
     }
     
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         descriptionTextField.resignFirstResponder()
         return true
     }
@@ -69,27 +69,27 @@ class KeyPadViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var entireView: UIView!
     
-    func keyboardWillShow(notification: NSNotification) {
+    func keyboardWillShow(_ notification: Notification) {
         
-        heightConstraint = NSLayoutConstraint(item: keysView, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: NSLayoutAttribute.NotAnAttribute, multiplier: 1, constant: 0)
-        entireHeightConstraint = NSLayoutConstraint(item: entireView, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: NSLayoutAttribute.NotAnAttribute, multiplier: 1, constant: 300)
+        heightConstraint = NSLayoutConstraint(item: keysView, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: nil, attribute: NSLayoutAttribute.notAnAttribute, multiplier: 1, constant: 0)
+        entireHeightConstraint = NSLayoutConstraint(item: entireView, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: nil, attribute: NSLayoutAttribute.notAnAttribute, multiplier: 1, constant: 300)
         
         for view in keysView.subviews {
-            view.hidden = true
+            view.isHidden = true
         }
         keysView.addConstraint(heightConstraint!)
         entireView.addConstraint(entireHeightConstraint!)
     }
     
-    func keyboardWillHide(notification: NSNotification) {
+    func keyboardWillHide(_ notification: Notification) {
         keysView.removeConstraint(heightConstraint!)
         entireView.removeConstraint(entireHeightConstraint!)
         for view in keysView.subviews {
-            view.hidden = false
+            view.isHidden = false
         }
     }
     
-    @IBAction func appendDigit(sender: UIButton) {
+    @IBAction func appendDigit(_ sender: UIButton) {
         let digit = sender.currentTitle
         canBackspace = true
 
@@ -126,8 +126,8 @@ class KeyPadViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         //defaults.setObject(expensesArray, forKey: "expensesArray")
-        defaults.setObject(descriptionArray, forKey: "descriptionArray")
-        defaults.setObject(expensesArray, forKey: "expensesArray")
+        defaults.set(descriptionArray, forKey: "descriptionArray")
+        defaults.set(expensesArray, forKey: "expensesArray")
         defaults.synchronize()
         
         sum.text! = "Total: \(runningTotal)"
@@ -141,7 +141,7 @@ class KeyPadViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func backspaceButtonPress() {
         if (sum.text!.characters.count > 0 && canBackspace) {
-            sum.text!.removeAtIndex(sum.text!.endIndex.predecessor())
+            sum.text!.remove(at: sum.text!.characters.index(before: sum.text!.endIndex))
         }
     }
     

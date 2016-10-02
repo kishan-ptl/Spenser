@@ -45,7 +45,7 @@ class HistoryViewController: UIViewController {
 
     
 
-    @IBAction func clearButtonPress(sender: UIBarButtonItem) {
+    @IBAction func clearButtonPress(_ sender: UIBarButtonItem) {
         expensesHistory.removeAll()
         descriptionHistory.removeAll()
         descriptionString = ""
@@ -54,13 +54,13 @@ class HistoryViewController: UIViewController {
         clearButtonPressed = true
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let originViewController : KeyPadViewController = segue.destinationViewController as! KeyPadViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let originViewController : KeyPadViewController = segue.destination as! KeyPadViewController
         if clearButtonPressed {
             originViewController.expensesArray.removeAll()
             originViewController.descriptionArray.removeAll()
-            originViewController.defaults.setObject(originViewController.expensesArray, forKey: "expensesArray2")
-            originViewController.defaults.setObject(originViewController.descriptionArray, forKey: "descriptionArray")
+            originViewController.defaults.set(originViewController.expensesArray, forKey: "expensesArray2")
+            originViewController.defaults.set(originViewController.descriptionArray, forKey: "descriptionArray")
             clearButtonPressed = false
         }
 
